@@ -32,7 +32,6 @@ public class Park {
         Park.Attraction a1 = new Park.Attraction("Wheel", "08:30", 150);
         a1.info();
     }
-
 }
 
 
