@@ -36,8 +36,7 @@ class Student {
     public void nextCourse() {
         this.course++;
     }
-
-    @Override
+    
     public String toString() {
         return name + " (курс: " + course + ", ср. балл: " + String.format("%.2f", getAverageGrade()) + ")";
     }
@@ -53,7 +52,7 @@ class Student {
             }
         }
     }
-    
+
     public static void printStudents(Set<Student> students, int course) {
         System.out.println("Студенты курса " + course + ":");
         for (Student s : students) {
