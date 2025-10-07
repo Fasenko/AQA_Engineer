@@ -53,8 +53,7 @@ class Student {
             }
         }
     }
-
-    // ✅ Метод вывода студентов по курсу
+    
     public static void printStudents(Set<Student> students, int course) {
         System.out.println("Студенты курса " + course + ":");
         for (Student s : students) {

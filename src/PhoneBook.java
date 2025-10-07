@@ -3,12 +3,10 @@ import java.util.*;
 class PhoneBook {
     private Map<String, List<String>> phoneBook = new HashMap<>();
 
-    // ✅ Добавление записи
     public void add(String lastName, String phoneNumber) {
         phoneBook.computeIfAbsent(lastName, k -> new ArrayList<>()).add(phoneNumber);
     }
 
-    // ✅ Получение номеров по фамилии
     public List<String> get(String lastName) {
         return phoneBook.getOrDefault(lastName, Collections.emptyList());
     }
