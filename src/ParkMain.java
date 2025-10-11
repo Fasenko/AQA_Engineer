@@ -1,4 +1,4 @@
-public class ParcMain {
+public class ParkMain {
     public static void main(String[] args) {
 
         // 3. Использование класса Park и внутреннего класса Attraction
