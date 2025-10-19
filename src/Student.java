@@ -1,6 +1,6 @@
 import java.util.*;
 
-class Student {
+public class Student {
     private String name;
     private String group;
     private int course;
@@ -36,52 +36,11 @@ class Student {
     public void nextCourse() {
         this.course++;
     }
-    
+
+    @Override
     public String toString() {
         return name + " (курс: " + course + ", ср. балл: " + String.format("%.2f", getAverageGrade()) + ")";
     }
-
-    public static void removeLowGrades(Set<Student> students) {
-        students.removeIf(student -> student.getAverageGrade() < 3);
-    }
-
-    public static void promoteStudents(Set<Student> students) {
-        for (Student s : students) {
-            if (s.getAverageGrade() >= 3) {
-                s.nextCourse();
-            }
-        }
-    }
-
-    public static void printStudents(Set<Student> students, int course) {
-        System.out.println("Студенты курса " + course + ":");
-        for (Student s : students) {
-            if (s.getCourse() == course) {
-                System.out.println("- " + s.getName());
-            }
-        }
-    }
-
-    public static void main(String[] args) {
-        Set<Student> students = new HashSet<>();
-        students.add(new Student("Иванов Иван", "A-101", 1, Arrays.asList(4, 5, 3)));
-        students.add(new Student("Петров Петр", "A-101", 2, Arrays.asList(2, 2, 3)));
-        students.add(new Student("Сидоров Сидор", "B-201", 3, Arrays.asList(5, 4, 5)));
-        students.add(new Student("Кузнецов Николай", "B-202", 1, Arrays.asList(3, 3, 3)));
-
-        System.out.println("Исходный список студентов:");
-        students.forEach(System.out::println);
-
-        removeLowGrades(students);
-        promoteStudents(students);
-
-        System.out.println("\nПосле удаления и перевода:");
-        students.forEach(System.out::println);
-
-        System.out.println();
-        printStudents(students, 2);
-    }
-
-
 }
+
 
