@@ -1,5 +1,3 @@
-package mts_tests;
-
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.*;
@@ -14,53 +12,41 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class MtsPaymentBlockFinalTest { // Имя класса изменено для порядка
+public class MtsPaymentBlockTest {
 
     private WebDriver driver;
     private WebDriverWait wait;
 
-    // --- КОНСТАНТЫ ---
     private static final String BASE_URL = "https://www.mts.by/";
     private static final String TEST_PHONE = "297777777";
     private static final String TEST_SUM = "1.00";
 
-    // ----------------------------------------------------------------------------------
-    // --- ЛОКАТОРЫ ---
-    // ----------------------------------------------------------------------------------
 
     private static final By BLOCK_TITLE_LOCATOR =
             By.xpath(".//h2[contains(., 'Онлайн пополнение') and contains(., 'без комиссии')]");
 
-    // Тест 2: Логотипы
     private static final By LOGO_VISA = By.xpath(".//img[@alt='Visa']");
     private static final By LOGO_MASTERCARD = By.xpath(".//img[@alt='MasterCard']");
     private static final By LOGO_MASTERCARD_SECURE = By.xpath(".//img[@alt='MasterCard Secure Code']");
     private static final By LOGO_VERIFIED_VISA = By.xpath(".//img[@alt='Verified By Visa']");
 
-    // Тест 3: Ссылка "Подробнее о сервисе"
     private static final By DETAILS_LINK = By.xpath(".//a[contains(@href, 'poryadok-oplaty-i-bezopasnost')]");
 
-    // Локатор для кастомного списка услуг (ВИЗУАЛЬНАЯ КНОПКА)
-    // Используем более общий, но корректный XPath для хедера, как в вашем предложении
     private static final By SERVICE_HEADER_LOCATOR_VISUAL = By.xpath("//button[contains(@class,'select__header')]");
 
-    // Поля для "Услуги связи"
     private static final By PHONE_INPUT = By.id("connection-phone");
     private static final By SUM_INPUT = By.id("connection-sum");
     private static final By PROCEED_BUTTON = By.xpath(".//form//button[@type='submit' and contains(., 'Продолжить')]");
 
-    // Поля для других услуг (СКОРРЕКТИРОВАНО по предоставленному HTML)
     private static final By INTERNET_ACCOUNT_INPUT = By.id("internet-account");
     private static final By INSTALLMENT_ACCOUNT_INPUT = By.id("score-instalment"); // ИСПРАВЛЕНО
     private static final By ARREARS_PHONE_INPUT = By.id("score-arrears"); // ИСПРАВЛЕНО
 
-    // IFRAME и его содержимое (Тест 4)
     private static final By PAYMENT_IFRAME = By.xpath("//iframe[contains(@class, 'bepaid-iframe')]");
     private static final By IFRAME_DESCRIPTION = By.xpath(".//div[@class='pay-description']");
     private static final By IFRAME_AMOUNT = By.xpath(".//div[@class='pay-amount']");
     private static final By IFRAME_LOGOS = By.xpath(".//div[@class='pay-system-container']");
 
-    // Cookie-блок
     private static final By COOKIE_BLOCK = By.cssSelector("div.cookie.show");
 
     // ----------------------------------------------------------------------------------
@@ -73,7 +59,6 @@ public class MtsPaymentBlockFinalTest { // Имя класса изменено 
         wait = new WebDriverWait(driver, Duration.ofSeconds(20));
         driver.get(BASE_URL);
 
-        // 1. Закрытие лишних окон
         String mainWindow = driver.getWindowHandle();
         Set<String> allWindows = driver.getWindowHandles();
         if (allWindows.size() > 1) {
@@ -84,7 +69,6 @@ public class MtsPaymentBlockFinalTest { // Имя класса изменено 
             }
             driver.switchTo().window(mainWindow);
         }
-        // 2. Удаление cookie-блока через JS
         try {
             WebElement cookieBlock = wait.withTimeout(Duration.ofSeconds(5))
                     .until(ExpectedConditions.presenceOfElementLocated(COOKIE_BLOCK));
@@ -100,15 +84,7 @@ public class MtsPaymentBlockFinalTest { // Имя класса изменено 
         if (driver != null) driver.quit();
     }
 
-    // ----------------------------------------------------------------------------------
-    // --- ВСПОМОГАТЕЛЬНЫЕ МЕТОДЫ ---
-    // ----------------------------------------------------------------------------------
-
-    /**
-     * СУПЕР НАДЕЖНЫЙ МЕТОД: Выбирает услугу через имитацию кликов с JS и механизмом повтора (retry).
-     */
     private void selectServiceViaLi(String serviceName) {
-        // Локаторы для кастомного списка
         By headerLocator = By.xpath("//button[contains(@class,'select__header')]");
         By optionLocator = By.xpath("//ul[contains(@class,'select__list')]//li[contains(., '" + serviceName + "')]");
         By listLocator = By.xpath("//ul[contains(@class,'select__list')]");
@@ -117,56 +93,41 @@ public class MtsPaymentBlockFinalTest { // Имя класса изменено 
         int attempts = 0;
         while (attempts < 2) {
             try {
-                // 1. Ждем и прокручиваем к заголовку, чтобы убедиться в видимости
                 WebElement headerButton = wait.until(ExpectedConditions.elementToBeClickable(headerLocator));
                 ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", headerButton);
 
-                // 2. Добавляем небольшую задержку, чтобы список успел открыться
                 Thread.sleep(400);
 
-                // 3. Кликаем по заголовку через JS
                 ((JavascriptExecutor) driver).executeScript("arguments[0].click();", headerButton);
                 System.out.println("Информация: Выполнен JS-клик по кнопке выбора услуги.");
 
-                // 4. Ждем появления пункта и кликаем по нему через JS
                 WebElement optionElement = wait.until(ExpectedConditions.elementToBeClickable(optionLocator));
                 ((JavascriptExecutor) driver).executeScript("arguments[0].click();", optionElement);
                 System.out.println("✅ Выбрана услуга (попытка #" + (attempts + 1) + "): " + serviceName);
 
-                // 5. Ждём, пока список исчезнет
                 wait.until(ExpectedConditions.invisibilityOfElementLocated(listLocator));
 
-                return; // Успех
+                return;
             } catch (Exception e) {
                 attempts++;
                 System.err.println("⚠️ Попытка #" + attempts + " не удалась: " + e.getMessage().split("\n")[0]);
                 if (attempts == 2) {
-                    // Если это была последняя попытка, пробрасываем ошибку дальше
                     throw new RuntimeException("Не удалось выбрать услугу " + serviceName + " после 2 попыток.", e);
                 }
-                // Перезагружаем страницу для следующей попытки
                 driver.navigate().refresh();
-                // Ждем, пока заголовок снова станет видимым после перезагрузки
                 wait.until(ExpectedConditions.visibilityOfElementLocated(headerLocator));
             }
         }
     }
 
-    /**
-     * Выбирает услугу "Услуги связи", вводит тестовые данные и нажимает "Продолжить".
-     * Возвращает WebElement IFRAME.
-     */
     private WebElement submitPhoneServiceForm() {
-        // 0. Выбор услуги и ввод данных
         selectServiceViaLi("Услуги связи"); // Используем надежный метод
         driver.findElement(PHONE_INPUT).sendKeys(TEST_PHONE);
         driver.findElement(SUM_INPUT).sendKeys(TEST_SUM);
-        // 1. Усиленный КЛИК
         WebElement proceedButton = wait.until(ExpectedConditions.elementToBeClickable(PROCEED_BUTTON));
         ((JavascriptExecutor) driver).executeScript("arguments[0].click();", proceedButton);
         System.out.println("Информация: Форма отправлена.");
 
-        // 2. Ждем появления IFRAME
         try {
             return wait.until(ExpectedConditions.presenceOfElementLocated(PAYMENT_IFRAME));
         } catch (Exception e) {
@@ -174,12 +135,6 @@ public class MtsPaymentBlockFinalTest { // Имя класса изменено 
             return null;
         }
     }
-
-    // ----------------------------------------------------------------------------------
-    // --- ТЕСТЫ ---
-    // ----------------------------------------------------------------------------------
-
-    // ... Тесты 1-7 без изменений, но использующие новый, надежный selectServiceViaLi ...
 
     @Test
     @Order(1)
@@ -324,7 +279,6 @@ public class MtsPaymentBlockFinalTest { // Имя класса изменено 
 
         wait.until(ExpectedConditions.invisibilityOfElementLocated(INSTALLMENT_ACCOUNT_INPUT));
 
-        // ИСПРАВЛЕНО: ищем score-arrears
         WebElement arrearsInput = wait.until(ExpectedConditions.visibilityOfElementLocated(ARREARS_PHONE_INPUT));
 
         assertTrue(arrearsInput.isDisplayed(), "Провал: Поле для Задолженности не появилось.");
