@@ -14,7 +14,7 @@ import java.time.Duration;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class MtsPaymentBlockRefactoredTest {
+public class MtsPaymentBlockTest {
 
     private WebDriver driver;
     private WebDriverWait wait;
